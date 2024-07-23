@@ -16,4 +16,5 @@ public class Printer implements MenuPrinter {
             System.out.println("Меню еще не содержит элементов. Сначала добавьте элементы.");
         }
     }
+
 }

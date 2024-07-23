@@ -39,4 +39,5 @@ class PrinterTest {
         new Printer().print(menu);
         assertThat(outContent.toString().trim()).isEqualTo(expect);
     }
+
 }

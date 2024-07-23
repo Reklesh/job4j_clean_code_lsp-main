@@ -45,4 +45,5 @@ public class SimpleMenuTest {
                 .message()
                 .isNotEmpty();
     }
+
 }

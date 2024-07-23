@@ -73,4 +73,5 @@ public class TodoApp {
         MenuPrinter printer = new Printer();
         start(scanner, menu, printer);
     }
+
 }
