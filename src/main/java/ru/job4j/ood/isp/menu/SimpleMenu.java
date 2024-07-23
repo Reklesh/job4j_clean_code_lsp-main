@@ -3,37 +3,69 @@ package ru.job4j.ood.isp.menu;
 import java.util.*;
 
 public class SimpleMenu implements Menu {
-
     private final List<MenuItem> rootElements = new ArrayList<>();
 
     @Override
     public boolean add(String parentName, String childName, ActionDelegate actionDelegate) {
-   /*  добавьте реализацию*/
-        return  false;
+        Optional<ItemInfo> optionalItemInfo = findItem(parentName);
+        MenuItem child = new SimpleMenuItem(childName, actionDelegate);
+        boolean isToAdd = false;
+        if (parentName == null) {
+            isToAdd = rootElements.add(child);
+        } else if (optionalItemInfo.isPresent()) {
+            List<MenuItem> children = optionalItemInfo.get().menuItem.getChildren();
+            if (!children.contains(child)) {
+                isToAdd = children.add(child);
+            } else {
+                System.out.printf("Элемент с именем %s уже содержится в родительском элементе%n", childName);
+            }
+        } else {
+            System.out.printf("По указанному имени %s родительский элемент в меню не найден%n", parentName);
+        }
+        return isToAdd;
     }
 
     @Override
     public Optional<MenuItemInfo> select(String itemName) {
-        /*  добавьте реализацию*/
-        return null;
+        return findItem(itemName).map(itemInfo -> new MenuItemInfo(itemInfo.menuItem, itemInfo.number));
     }
 
     @Override
     public Iterator<MenuItemInfo> iterator() {
-        /*  добавьте реализацию*/
-        return null;
+        return new Iterator<>() {
+            private final DFSIterator dfsIterator = new DFSIterator();
+
+            @Override
+            public boolean hasNext() {
+                return dfsIterator.hasNext();
+            }
+
+            @Override
+            public MenuItemInfo next() {
+                var itemInfo = dfsIterator.next();
+                return new MenuItemInfo(itemInfo.menuItem, itemInfo.number);
+            }
+        };
     }
 
     private Optional<ItemInfo> findItem(String name) {
-        /*  добавьте реализацию*/
-        return null;
+        DFSIterator dfsIterator = new DFSIterator();
+        ItemInfo info = null;
+        while (dfsIterator.hasNext()) {
+            ItemInfo info2 = dfsIterator.next();
+            if (info2.menuItem.getName().equals(name)) {
+                info = info2;
+                break;
+            }
+        }
+        return Optional.ofNullable(info);
     }
 
     private static class SimpleMenuItem implements MenuItem {
 
-        private String name;
-        private List<MenuItem> children = new ArrayList<>();
-        private ActionDelegate actionDelegate;
+        private final String name;
+        private final List<MenuItem> children = new ArrayList<>();
+        private final ActionDelegate actionDelegate;
 
         public SimpleMenuItem(String name, ActionDelegate actionDelegate) {
             this.name = name;
@@ -54,13 +86,30 @@ public class SimpleMenu implements Menu {
         public ActionDelegate getActionDelegate() {
             return actionDelegate;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            SimpleMenuItem that = (SimpleMenuItem) o;
+            return Objects.equals(name, that.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name);
+        }
     }
 
     private class DFSIterator implements Iterator<ItemInfo> {
 
-        Deque<MenuItem> stack = new LinkedList<>();
+        private final Deque<MenuItem> stack = new LinkedList<>();
 
-        Deque<String> numbers = new LinkedList<>();
+        private final Deque<String> numbers = new LinkedList<>();
 
         DFSIterator() {
             int number = 1;
@@ -93,9 +142,8 @@ public class SimpleMenu implements Menu {
     }
 
     private class ItemInfo {
-
-        MenuItem menuItem;
-        String number;
+        private final MenuItem menuItem;
+        private final String number;
 
         public ItemInfo(MenuItem menuItem, String number) {
             this.menuItem = menuItem;

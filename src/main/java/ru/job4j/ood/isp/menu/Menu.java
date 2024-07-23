@@ -3,11 +3,10 @@ package ru.job4j.ood.isp.menu;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public interface Menu extends Iterable<Menu.MenuItemInfo> {
 
-    String ROOT = null; /* Константа, указывающая, что нужно добавить элемент в корень */
+    String ROOT = null;
 
     boolean add(String parentName, String childName, ActionDelegate actionDelegate);
 
@@ -22,7 +21,9 @@ public interface Menu extends Iterable<Menu.MenuItemInfo> {
 
         public MenuItemInfo(MenuItem menuItem, String number) {
             this.name = menuItem.getName();
-            this.children = menuItem.getChildren().stream().map(MenuItem::getName).collect(Collectors.toList());
+            this.children = menuItem.getChildren().stream()
+                    .map(MenuItem::getName)
+                    .toList();
             this.actionDelegate = menuItem.getActionDelegate();
             this.number = number;
         }
